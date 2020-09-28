@@ -136,7 +136,7 @@ namespace WiFoTestApplication
                 foreach (var control in requiredControls)
                 {
                     if (control.IsEmpty())
-                        message += $"Control: {control.Name}\r\n";
+                        message += $"Control: {control.GetMetadata()?.Name ?? control.Name}\r\n";
                 }
 
                 if (!string.IsNullOrEmpty(message))
@@ -161,8 +161,8 @@ namespace WiFoTestApplication
 
         private void FormMain_Load(object sender, EventArgs e)
         {
-            textBoxFirstName.SetMetadata(true);
-            textBoxLastname.SetMetadata(true);
+            textBoxFirstName.SetMetadata("First name", true);
+            textBoxLastname.SetMetadata("Last name", true);
         }
     }
 }

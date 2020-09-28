@@ -61,6 +61,16 @@ namespace WiFoTestApplication
             });
         }
 
+        public static void SetMetadata(this Control control, string name, bool required = false, object value = null)
+        {
+            control.SetMetadata(new ControlMetadata
+            {
+                Name = name,
+                Required = required,
+                OriginalValue = value
+            });
+        }
+
         public static ControlMetadata GetMetadata(this Control control)
         {
             if (control == null)
@@ -69,7 +79,6 @@ namespace WiFoTestApplication
             if (!(control.Tag is ControlMetadata metadata))
                 return null;
 
-            metadata.Name = control.Name;
             return metadata;
         }
 
