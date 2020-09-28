@@ -47,14 +47,12 @@ namespace WiFoTestApplication
             foreach (var property in properties)
             {
                 var control = GetControl(this, property.Name);
-                if (control == null)
-                    continue;
 
-                var value = GetValue(control);
+                var value = control?.GetValue();
                 if (value == null)
                     continue;
 
-                property.SetValue(data, Convert.ChangeType(value, property.PropertyType));
+                property.SetValue(data, Extensions.ChangeType(value, property.PropertyType));
             }
         }
 
@@ -66,20 +64,13 @@ namespace WiFoTestApplication
         /// <returns>The control which was found, default = null</returns>
         private Control GetControl(Control rootControl, string name)
         {
-            var supportedControls = new List<Type>
-            {
-                typeof(TextBox),
-                typeof(NumericUpDown),
-                typeof(DateTimePicker)
-            };
-
-        var control = rootControl.Controls.Cast<Control>().Where(w => !(w is Label))
+            var control = rootControl.Controls.Cast<Control>().Where(w => !(w is Label))
                 .FirstOrDefault(f => f.Name.ContainsIgnoreCase(name));
 
             if (control == null)
                 return null;
 
-            if (supportedControls.Contains(control.GetType()))
+            if (Extensions.SupportedControls.Contains(control.GetType()))
                 return control;
 
             return control.Controls.Count > 0 ? GetControl(control, name) : null;
@@ -104,22 +95,6 @@ namespace WiFoTestApplication
                     numUpDown.Value = Convert.ToDecimal(value);
                     break;
             }
-        }
-
-        /// <summary>
-        /// Tries to get the value of given control
-        /// </summary>
-        /// <param name="ctrl">The control</param>
-        /// <returns>The value of the control</returns>
-        private object GetValue(Control ctrl)
-        {
-            return ctrl switch
-            {
-                TextBox txtBox => txtBox.Text,
-                DateTimePicker dtPicker => dtPicker.Value,
-                NumericUpDown numUpDown => numUpDown.Value,
-                _ => null
-            };
         }
 
         /// <summary>
@@ -155,6 +130,18 @@ namespace WiFoTestApplication
         {
             try
             {
+                var requiredControls = this.GetRequiredControl();
+
+                var message = "";
+                foreach (var control in requiredControls)
+                {
+                    if (control.IsEmpty())
+                        message += $"Control: {control.Name}\r\n";
+                }
+
+                if (!string.IsNullOrEmpty(message))
+                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 var person = new Person();
                 GetData(person);
 
@@ -170,6 +157,12 @@ namespace WiFoTestApplication
                 MessageBox.Show($"An error has occurred: {ex.Message}", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+            textBoxFirstName.SetMetadata(true);
+            textBoxLastname.SetMetadata(true);
         }
     }
 }
